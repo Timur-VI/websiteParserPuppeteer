@@ -44,7 +44,8 @@ const fs = require('fs');
     }
     const getElementValueHelper = async (selector) => {
       const element = await page.$(selector);
-      return element ? element.evaluate((el) => el.textContent) : 'Нет оценок';
+      if (!element) console.warn(`Element ${selector} not found`);
+      return element && element.evaluate((el) => el.textContent);
     };
     const productInfo = {};
     const outOfStockElement = await page.$('div.OutOfStockInformer_informer__NCD7v');
@@ -63,7 +64,7 @@ const fs = require('fs');
         productInfo.price = await getElementValueHelper('span.Price_price__QzA8L');
       }
     }
-    productInfo.rating = await getElementValueHelper('span.Rating_value__S2QNR');
+    productInfo.rating = await getElementValueHelper('span.Rating_value__S2QNR') || 'Нет оценок';
     productInfo.reviewsCount = await getElementValueHelper('button.ActionsRow_button__g8vnK');
     const resultText = `${typeof productInfo.price === 'string'
       ? `Цена: ${productInfo.price}\n`
